@@ -157,7 +157,22 @@ function App() {
   const [selectedId, setSelectedId] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [newInsight, setNewInsight] = useState({ type: 'insight', title: '', description: '' })
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
   const graphRef = useRef()
+  const containerRef = useRef()
+
+  // Track container size
+  useEffect(() => {
+    const updateSize = () => {
+      if (containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect()
+        setDimensions({ width: width || 800, height: height || 600 })
+      }
+    }
+    updateSize()
+    window.addEventListener('resize', updateSize)
+    return () => window.removeEventListener('resize', updateSize)
+  }, [])
 
   // Save to localStorage
   useEffect(() => {
@@ -227,7 +242,7 @@ function App() {
 
   return (
     <div className="app">
-      <div className="brain-canvas">
+      <div className="brain-canvas" ref={containerRef}>
         <header className="header">
           <div className="logo">
             <div className="logo-icon">~</div>
@@ -248,6 +263,8 @@ function App() {
         <ForceGraph2D
           ref={graphRef}
           graphData={graphData}
+          width={dimensions.width}
+          height={dimensions.height}
           nodeColor={node => node.color}
           nodeRelSize={6}
           linkColor={() => 'rgba(136, 136, 160, 0.2)'}
